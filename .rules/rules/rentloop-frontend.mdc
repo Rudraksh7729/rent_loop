@@ -1,0 +1,30 @@
+---
+description: RentLoop frontend stack, architecture, and design standards
+alwaysApply: true
+---
+
+# RentLoop Frontend
+
+## Stack (do not change)
+
+React + JavaScript + Vite + Tailwind + Framer Motion + Lucide. No TypeScript. No framework swap. Add deps only with clear need.
+
+## Structure
+
+`src/components/{layout,home,ui}`, `src/pages`, `src/data`, `src/assets`. Keep App thin. Split large components; avoid tiny one-off fragments.
+
+## Design
+
+Communicate LOCAL + TRUST + SHARING + CONVENIENCE. Polished startup quality, own visual identity—not generic college/dashboard UI.
+
+Emphasize nearby items, ₹/day, duration, availability, owner, distance, ratings—not normal e-commerce.
+
+Hero: brand-first, clear value in seconds. Use purposeful Framer Motion only (entrance, hover, menu)—not constant motion.
+
+## Responsive & a11y
+
+Desktop → mobile layouts (not just shrink). Semantic HTML, labels, alt text, focus states, image fallbacks.
+
+## Images & data
+
+Rental-relevant images with consistent ratios. Realistic demo data (e.g. Sony Alpha, ₹800/day, Chandigarh)—no lorem ipsum.

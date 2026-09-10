@@ -1,0 +1,28 @@
+---
+description: RentLoop project identity, college scope, and phase discipline
+alwaysApply: true
+---
+
+# RentLoop Core
+
+Peer-to-peer rental marketplace (college BEE). Tagline: **Don't Buy It. Rent It.**
+
+Users: Renter (Discover → Book → Return → Review) and Owner (List → Price → Manage → Earn).
+
+## Scope
+
+Premium UI + realistic implementation + viva-explainable code. Prefer simple over SaaS complexity.
+
+## Honesty
+
+Never claim unimplemented features (AI, delivery, QR, insurance, real auth/payments/APIs/notifications). Demo auth, listings, and rentals use localStorage only.
+
+## Process
+
+Work phase by phase. Phases 1–5 complete. Do not start the next phase unless asked.
+
+After meaningful work: `npm run build` must pass. Stop when the requested phase is done.
+
+## Decision rule
+
+Choose simpler, cleaner, easier to explain, better for the RentLoop UX.
