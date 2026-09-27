@@ -109,14 +109,25 @@ export function AuthProvider({ children }) {
     function updateProfile(updates = {}) {
       if (!user) return { ok: false, error: 'Not signed in.' }
 
-      const { password: _ignoredPassword, ...safeUpdates } = updates
+      const { password: _ignoredPassword, name, email, location, preferences } = updates
       const nextUser = {
         ...user,
-        ...safeUpdates,
+        ...(typeof name === 'string' ? { name: name.trim() } : {}),
+        ...(typeof email === 'string' ? { email: email.trim().toLowerCase() } : {}),
+        ...(typeof location === 'string' ? { location: location.trim() } : {}),
         role: user.role,
         preferences: {
           ...user.preferences,
-          ...(safeUpdates.preferences || {}),
+          ...(preferences && typeof preferences === 'object'
+            ? {
+                ...(typeof preferences.notifications === 'boolean'
+                  ? { notifications: preferences.notifications }
+                  : {}),
+                ...(typeof preferences.nearbyAlerts === 'boolean'
+                  ? { nearbyAlerts: preferences.nearbyAlerts }
+                  : {}),
+              }
+            : {}),
         },
       }
 
