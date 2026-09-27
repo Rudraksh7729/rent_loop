@@ -1,6 +1,15 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
+
+const FOCUSABLE = [
+  'a[href]',
+  'button:not([disabled])',
+  'textarea:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',')
 
 export default function Modal({
   open,
@@ -9,19 +18,55 @@ export default function Modal({
   children,
   labelledBy = 'modal-title',
 }) {
+  const dialogRef = useRef(null)
+
   useEffect(() => {
     if (!open) return undefined
-    const previous = document.body.style.overflow
+
+    const previousOverflow = document.body.style.overflow
+    const previousFocus = document.activeElement
     document.body.style.overflow = 'hidden'
 
+    const focusFirst = () => {
+      const first = dialogRef.current?.querySelector(FOCUSABLE)
+      ;(first || dialogRef.current)?.focus()
+    }
+
+    const timer = window.setTimeout(focusFirst, 0)
+
     function onKeyDown(event) {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (event.key !== 'Tab' || !dialogRef.current) return
+
+      const focusable = [...dialogRef.current.querySelectorAll(FOCUSABLE)]
+      if (!focusable.length) {
+        event.preventDefault()
+        dialogRef.current.focus()
+        return
+      }
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
     }
 
     window.addEventListener('keydown', onKeyDown)
     return () => {
-      document.body.style.overflow = previous
+      window.clearTimeout(timer)
+      document.body.style.overflow = previousOverflow
       window.removeEventListener('keydown', onKeyDown)
+      if (previousFocus && typeof previousFocus.focus === 'function') {
+        previousFocus.focus()
+      }
     }
   }, [open, onClose])
 
@@ -39,9 +84,11 @@ export default function Modal({
             onClick={onClose}
           />
           <motion.div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby={labelledBy}
+            tabIndex={-1}
             initial={{ opacity: 0, y: 24, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
