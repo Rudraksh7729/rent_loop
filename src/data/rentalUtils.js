@@ -1,4 +1,4 @@
-import { calcRentalDays } from './marketplaceUtils'
+import { calcRentalDays } from './marketplaceUtils.js'
 
 /** Built-in mock catalog bookings route to the demo owner for presentations. */
 export const MOCK_CATALOG_OWNER_ID = 'demo-owner'
