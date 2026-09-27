@@ -122,7 +122,8 @@ export function ListingProvider({ children }) {
       if (existing.ownerId !== ownerId) {
         return { ok: false, error: 'You can only delete your own listings.' }
       }
-      persist(listings.filter((listing) => listing.id !== id))
+      const result = persist(listings.filter((listing) => listing.id !== id))
+      if (!result.ok) return result
       return { ok: true }
     }
 
