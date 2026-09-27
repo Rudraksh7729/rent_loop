@@ -23,8 +23,9 @@ export function RentalProvider({ children }) {
   const value = useMemo(() => {
     function persist(next) {
       const saved = saveRentals(next)
+      if (!saved) return { ok: false, error: 'Browser storage is full. Remove unused saved data and try again.' }
       setRentals(saved)
-      return saved
+      return { ok: true, rentals: saved }
     }
 
     function getRentals() {
@@ -104,7 +105,8 @@ export function RentalProvider({ children }) {
 
       if (!rental) return { ok: false, error: 'Could not create rental request.' }
 
-      persist([rental, ...rentals])
+      const result = persist([rental, ...rentals])
+      if (!result.ok) return result
       return { ok: true, rental }
     }
 
@@ -161,7 +163,8 @@ export function RentalProvider({ children }) {
         updatedAt: new Date().toISOString(),
       })
 
-      persist(rentals.map((rental) => (rental.id === id ? updated : rental)))
+      const result = persist(rentals.map((rental) => (rental.id === id ? updated : rental)))
+      if (!result.ok) return result
       return { ok: true, rental: updated }
     }
 
