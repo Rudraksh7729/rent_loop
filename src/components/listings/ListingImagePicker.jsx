@@ -7,6 +7,7 @@ import { DEMO_LISTING_IMAGES } from '../../data/demoListingImages'
 
 const MAX_IMAGES = 5
 const MAX_FILE_BYTES = 1.5 * 1024 * 1024
+const MAX_TOTAL_DATA_BYTES = 5 * 1024 * 1024
 
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -34,6 +35,7 @@ export default function ListingImagePicker({ images, onChange, error }) {
 
     const selected = files.slice(0, remaining)
     const nextImages = [...images]
+    let totalBytes = nextImages.reduce((total, src) => total + src.length, 0)
 
     for (const file of selected) {
       if (!file.type.startsWith('image/')) {
@@ -46,7 +48,14 @@ export default function ListingImagePicker({ images, onChange, error }) {
       }
       try {
         const dataUrl = await readFileAsDataUrl(file)
-        if (dataUrl) nextImages.push(dataUrl)
+        if (dataUrl) {
+          if (totalBytes + dataUrl.length > MAX_TOTAL_DATA_BYTES) {
+            setLocalError('Keep all listing photos under 5 MB total for this demo.')
+            continue
+          }
+          nextImages.push(dataUrl)
+          totalBytes += dataUrl.length
+        }
       } catch {
         setLocalError('Could not read one of the selected images.')
       }
