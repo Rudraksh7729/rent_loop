@@ -1,4 +1,5 @@
 import { calcRentalDays, formatPrice } from '../../data/marketplaceUtils'
+import { validateRentalDates } from '../../data/rentalUtils'
 import PriceSummary from './PriceSummary'
 import Button from '../ui/Button'
 
@@ -17,8 +18,9 @@ export default function RentalSelector({
   disabledReason = '',
 }) {
   const days = calcRentalDays(startDate, endDate)
-  const invalidRange = Boolean(startDate && endDate && days <= 0)
-  const canContinue = available && startDate && endDate && days > 0
+  const dateCheck = validateRentalDates(startDate, endDate)
+  const invalidRange = Boolean(startDate && endDate && !dateCheck.ok)
+  const canContinue = available && dateCheck.ok
 
   return (
     <section className="rounded-2xl border border-line bg-surface p-5 shadow-soft sm:p-6">
@@ -52,7 +54,7 @@ export default function RentalSelector({
 
       {invalidRange ? (
         <p className="mt-3 text-sm text-accent" role="alert">
-          End date must be on or after the start date.
+          {dateCheck.error}
         </p>
       ) : null}
 
