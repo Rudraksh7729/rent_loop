@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ListingProvider } from './context/ListingContext'
 import { RentalProvider } from './context/RentalContext'
+import { SavedProvider } from './context/SavedContext'
 import ScrollToTop from './components/layout/ScrollToTop'
 import LandingPage from './pages/LandingPage'
 import ExplorePage from './pages/ExplorePage'
@@ -24,7 +25,8 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <ListingProvider>
-          <RentalProvider>
+          <SavedProvider>
+            <RentalProvider>
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<LandingPage />} />
@@ -45,7 +47,8 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          </RentalProvider>
+            </RentalProvider>
+          </SavedProvider>
         </ListingProvider>
       </AuthProvider>
     </BrowserRouter>
