@@ -44,6 +44,9 @@ export function normalizeRental(raw) {
   if (!isNonEmptyString(raw.renterId) || !isNonEmptyString(raw.ownerId)) return null
   if (!RENTAL_STATUSES.includes(raw.status)) return null
   if (!isISODate(raw.startDate) || !isISODate(raw.endDate)) return null
+  const start = new Date(`${raw.startDate}T00:00:00`)
+  const end = new Date(`${raw.endDate}T00:00:00`)
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end < start) return null
 
   const durationDays = Number(raw.durationDays)
   const pricePerDay = Number(raw.pricePerDay)
@@ -51,6 +54,8 @@ export function normalizeRental(raw) {
   if (!Number.isFinite(durationDays) || durationDays < 1) return null
   if (!Number.isFinite(pricePerDay) || pricePerDay <= 0) return null
   if (!Number.isFinite(subtotal) || subtotal <= 0) return null
+  const expectedSubtotal = Math.round(durationDays) * Math.round(pricePerDay)
+  if (Math.round(subtotal) !== expectedSubtotal) return null
 
   return {
     id: raw.id,
@@ -95,8 +100,13 @@ export function saveRentals(rentals) {
   const safe = (Array.isArray(rentals) ? rentals : [])
     .map(normalizeRental)
     .filter(Boolean)
-  localStorage.setItem(RENTALS_STORAGE_KEY, JSON.stringify(safe))
-  return safe
+  try {
+    localStorage.setItem(RENTALS_STORAGE_KEY, JSON.stringify(safe))
+    return safe
+  } catch (error) {
+    if (error?.name === 'QuotaExceededError' || error?.code === 22) return null
+    throw error
+  }
 }
 
 export function createRentalId() {
