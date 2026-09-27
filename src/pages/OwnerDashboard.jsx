@@ -50,7 +50,7 @@ function OwnerDashboardContent() {
       }))
     const earnings = completed.reduce((sum, rental) => sum + rental.subtotal, 0)
 
-    return { pending, upcoming, active, demoEarnings, breakdown }
+    return { pending, upcoming, active, earnings, breakdown }
   }, [rentals])
 
   const recentListings = listings.slice(0, 4).map((listing) => ({
@@ -105,7 +105,7 @@ function OwnerDashboardContent() {
           <StatCard label="Active Rentals" value={stats.active} />
           <StatCard
             label="Earnings"
-            value={formatPrice(stats.demoEarnings)}
+            value={formatPrice(stats.earnings)}
             hint="From completed rentals"
           />
         </section>
