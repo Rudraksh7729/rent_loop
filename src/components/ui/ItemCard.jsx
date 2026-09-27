@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { MapPin, Star } from 'lucide-react'
+import { Bookmark, MapPin, Star } from 'lucide-react'
+import { useSavedItems } from '../../hooks/useSavedItems'
 import ImageWithFallback from './ImageWithFallback'
 import { formatPrice, getItemImage, getOwnerName } from '../../data/marketplaceUtils'
 
@@ -8,6 +9,8 @@ export default function ItemCard({ item, linkTo }) {
   const image = getItemImage(item)
   const ownerName = getOwnerName(item.owner)
   const href = linkTo === false ? null : linkTo || `/item/${item.id}`
+  const { isSaved, toggleSaved } = useSavedItems()
+  const saved = isSaved(item.id)
 
   const content = (
     <>
@@ -25,6 +28,22 @@ export default function ItemCard({ item, linkTo }) {
         >
           {item.available ? 'Available' : 'Booked'}
         </span>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            toggleSaved(item.id)
+          }}
+          className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/70 bg-surface/95 text-ink shadow-soft transition-colors hover:text-brand"
+          aria-label={saved ? `Remove ${item.title} from saved items` : `Save ${item.title}`}
+          aria-pressed={saved}
+        >
+          <Bookmark
+            className={`h-4 w-4 ${saved ? 'fill-brand text-brand' : ''}`}
+            aria-hidden="true"
+          />
+        </button>
       </div>
 
       <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
