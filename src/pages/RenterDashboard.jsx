@@ -11,7 +11,6 @@ import EmptyState from '../components/ui/EmptyState'
 import { RequireRole } from '../components/auth/ProtectedRoute'
 import { useAuth } from '../hooks/useAuth'
 import { useRentals } from '../hooks/useRentals'
-import { getRecommendedItems } from '../data/renterDashboard'
 import { getMarketplaceCatalog } from '../data/listingUtils'
 import { useListings } from '../hooks/useListings'
 import { useSavedItems } from '../hooks/useSavedItems'
@@ -32,7 +31,10 @@ function RenterDashboardContent() {
   const { savedIds } = useSavedItems()
   const firstName = user.name.split(' ')[0]
   const catalog = useMemo(() => getMarketplaceCatalog(listings), [listings])
-  const recommended = useMemo(() => getRecommendedItems(), [])
+  const recommended = useMemo(
+    () => catalog.filter((item) => !savedIds.includes(item.id)).slice(0, 4),
+    [catalog, savedIds],
+  )
   const saved = useMemo(() => catalog.filter((item) => savedIds.includes(item.id)), [catalog, savedIds])
   const rentals = useMemo(() => getRenterRentals(user.id), [getRenterRentals, user.id])
 
