@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import {
   Bookmark,
   ClipboardList,
@@ -26,6 +26,7 @@ const ownerLinks = [
 ]
 
 function NavItems({ links, onNavigate, compact = false }) {
+  const location = useLocation()
   return links.map((link) => {
     const Icon = link.icon
     const isHash = link.to.includes('#')
@@ -40,11 +41,15 @@ function NavItems({ links, onNavigate, compact = false }) {
 
     if (isHash) {
       return (
-        <a
+        <Link
           key={link.to}
-          href={link.to}
+          to={link.to}
           onClick={onNavigate}
-          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-ink-soft transition-colors hover:bg-brand-light hover:text-brand ${
+          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+            location.hash === link.to.slice(link.to.indexOf('#'))
+              ? 'bg-brand-light text-brand'
+              : 'text-ink-soft hover:bg-brand-light hover:text-brand'
+          } ${
             compact ? 'flex-col justify-center gap-1 px-1 py-2 text-center' : ''
           }`}
         >
@@ -54,7 +59,7 @@ function NavItems({ links, onNavigate, compact = false }) {
           ) : (
             <span>{link.label}</span>
           )}
-        </a>
+        </Link>
       )
     }
 
