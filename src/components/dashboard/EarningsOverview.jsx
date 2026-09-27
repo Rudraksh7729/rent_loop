@@ -8,13 +8,13 @@ export default function EarningsOverview({ total, breakdown }) {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.12em] text-brand">
-            Demo earnings
+            Earnings
           </p>
           <h2 className="mt-1 font-display text-2xl font-bold text-ink">
             {formatPrice(total)}
           </h2>
           <p className="mt-1 text-sm text-ink-soft">
-            Fictional totals for presentation only.
+            Calculated from completed demo rentals in this browser.
           </p>
         </div>
       </div>
