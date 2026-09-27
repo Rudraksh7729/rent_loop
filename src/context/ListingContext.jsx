@@ -14,8 +14,11 @@ export function ListingProvider({ children }) {
   const value = useMemo(() => {
     function persist(next) {
       const saved = saveListings(next)
+      if (!saved) {
+        return { ok: false, error: 'Browser storage is full. Remove an existing listing photo or listing and try again.' }
+      }
       setListings(saved)
-      return saved
+      return { ok: true, listings: saved }
     }
 
     function getListings() {
@@ -38,7 +41,7 @@ export function ListingProvider({ children }) {
 
     function createListing({ owner, form, status }) {
       if (!owner?.id) return { ok: false, error: 'Owner session required.' }
-      if (status !== 'published' && status !== 'draft' && status !== 'paused') {
+      if (!['published', 'draft', 'paused'].includes(status)) {
         return { ok: false, error: 'Invalid listing status.' }
       }
 
@@ -73,7 +76,8 @@ export function ListingProvider({ children }) {
 
       if (!listing) return { ok: false, error: 'Could not create listing. Check required fields.' }
 
-      persist([listing, ...listings])
+      const result = persist([listing, ...listings])
+      if (!result.ok) return result
       return { ok: true, listing }
     }
 
@@ -85,6 +89,10 @@ export function ListingProvider({ children }) {
       }
 
       const nextStatus = status || existing.status
+      if (!['published', 'draft', 'paused'].includes(nextStatus)) {
+        return { ok: false, error: 'Invalid listing status.' }
+      }
+
       const updated = normalizeListing({
         ...existing,
         title: form.title,
@@ -103,7 +111,8 @@ export function ListingProvider({ children }) {
 
       if (!updated) return { ok: false, error: 'Could not update listing. Check required fields.' }
 
-      persist(listings.map((listing) => (listing.id === id ? updated : listing)))
+      const result = persist(listings.map((listing) => (listing.id === id ? updated : listing)))
+      if (!result.ok) return result
       return { ok: true, listing: updated }
     }
 
@@ -123,7 +132,7 @@ export function ListingProvider({ children }) {
       if (existing.ownerId !== ownerId) {
         return { ok: false, error: 'You can only manage your own listings.' }
       }
-      if (status !== 'published' && status !== 'draft' && status !== 'paused') {
+      if (!['published', 'draft', 'paused'].includes(status)) {
         return { ok: false, error: 'Invalid status.' }
       }
 
@@ -132,7 +141,10 @@ export function ListingProvider({ children }) {
         status,
         updatedAt: new Date().toISOString(),
       })
-      persist(listings.map((listing) => (listing.id === id ? updated : listing)))
+      if (!updated) return { ok: false, error: 'Could not update listing.' }
+
+      const result = persist(listings.map((listing) => (listing.id === id ? updated : listing)))
+      if (!result.ok) return result
       return { ok: true, listing: updated }
     }
 
@@ -159,7 +171,5 @@ export function ListingProvider({ children }) {
     }
   }, [listings])
 
-  return (
-    <ListingContext.Provider value={value}>{children}</ListingContext.Provider>
-  )
+  return <ListingContext.Provider value={value}>{children}</ListingContext.Provider>
 }
