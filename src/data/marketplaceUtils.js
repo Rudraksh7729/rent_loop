@@ -1,4 +1,4 @@
-import { priceRanges } from './filters'
+import { priceRanges } from './filters.js'
 
 export function getOwnerName(owner) {
   return typeof owner === 'string' ? owner : owner?.name || 'Owner'
