@@ -11,8 +11,8 @@ const trustPoints = [
   },
   {
     id: 'ratings',
-    title: 'Ratings that matter',
-    description: 'Community reviews keep quality and reliability visible.',
+    title: 'Visible ratings',
+    description: 'Ratings and review counts help renters compare items at a glance.',
     icon: Star,
   },
   {
