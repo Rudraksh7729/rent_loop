@@ -13,7 +13,6 @@ import { RequireRole } from '../components/auth/ProtectedRoute'
 import { useAuth } from '../hooks/useAuth'
 import { useListings } from '../hooks/useListings'
 import { useRentals } from '../hooks/useRentals'
-import { earningsBreakdown } from '../data/ownerDashboard'
 import { formatPrice } from '../data/marketplaceUtils'
 import { getDisplayStatus } from '../data/rentalUtils'
 
@@ -36,9 +35,22 @@ function OwnerDashboardContent() {
     const completed = rentals.filter(
       (rental) => getDisplayStatus(rental) === 'completed',
     )
+    const earningsByMonth = completed.reduce((map, rental) => {
+      const date = new Date(rental.endDate)
+      const key = Number.isNaN(date.getTime()) ? null : date.toISOString().slice(0, 7)
+      if (key) map[key] = (map[key] || 0) + rental.subtotal
+      return map
+    }, {})
+    const breakdown = Object.entries(earningsByMonth)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-6)
+      .map(([key, amount]) => ({
+        label: new Date(`${key}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'short' }),
+        amount,
+      }))
     const demoEarnings = completed.reduce((sum, rental) => sum + rental.subtotal, 0)
 
-    return { pending, upcoming, active, demoEarnings }
+    return { pending, upcoming, active, demoEarnings, breakdown }
   }, [rentals])
 
   const recentListings = listings.slice(0, 4).map((listing) => ({
@@ -73,7 +85,7 @@ function OwnerDashboardContent() {
               Manage your listings and rental activity.
             </p>
             <p className="mt-1 text-xs text-ink-soft">
-              Stats combine your local listings and demo rentals.
+              Stats and earnings are calculated from rental activity saved in this browser.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -92,9 +104,9 @@ function OwnerDashboardContent() {
           <StatCard label="Approved / Upcoming" value={stats.upcoming} />
           <StatCard label="Active Rentals" value={stats.active} />
           <StatCard
-            label="Demo Earnings"
+            label="Earnings"
             value={formatPrice(stats.demoEarnings)}
-            hint="From completed demo rentals"
+            hint="From completed rentals"
           />
         </section>
 
@@ -152,7 +164,7 @@ function OwnerDashboardContent() {
         <section id="earnings" className="scroll-mt-28">
           <EarningsOverview
             total={stats.demoEarnings || 0}
-            breakdown={earningsBreakdown}
+            breakdown={stats.breakdown}
           />
         </section>
       </motion.div>
