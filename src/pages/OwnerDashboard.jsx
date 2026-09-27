@@ -48,7 +48,7 @@ function OwnerDashboardContent() {
         label: new Date(`${key}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'short' }),
         amount,
       }))
-    const demoEarnings = completed.reduce((sum, rental) => sum + rental.subtotal, 0)
+    const earnings = completed.reduce((sum, rental) => sum + rental.subtotal, 0)
 
     return { pending, upcoming, active, demoEarnings, breakdown }
   }, [rentals])
