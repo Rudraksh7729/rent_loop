@@ -66,14 +66,31 @@ export function hasDateConflict(rentals, itemId, startDate, endDate, ignoreRenta
   })
 }
 
-export function validateRentalDates(startDate, endDate) {
-  const days = calcRentalDays(startDate, endDate)
+export function validateRentalDates(startDate, endDate, today = todayISO()) {
   if (!startDate || !endDate) {
     return { ok: false, error: 'Select both start and end dates.', days: 0 }
   }
+
+  const isoDate = /^\d{4}-\d{2}-\d{2}$/
+  if (!isoDate.test(startDate) || !isoDate.test(endDate)) {
+    return { ok: false, error: 'Select valid rental dates.', days: 0 }
+  }
+
+  const start = new Date(`${startDate}T00:00:00`)
+  const end = new Date(`${endDate}T00:00:00`)
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return { ok: false, error: 'Select valid rental dates.', days: 0 }
+  }
+
+  if (startDate < today || endDate < today) {
+    return { ok: false, error: 'Rental dates cannot be in the past.', days: 0 }
+  }
+
+  const days = calcRentalDays(startDate, endDate)
   if (days < 1) {
     return { ok: false, error: 'End date must be on or after the start date.', days: 0 }
   }
+
   return { ok: true, days }
 }
 
