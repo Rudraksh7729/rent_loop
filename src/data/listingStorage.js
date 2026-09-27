@@ -94,8 +94,16 @@ export function saveListings(listings) {
   const safe = (Array.isArray(listings) ? listings : [])
     .map(normalizeListing)
     .filter(Boolean)
-  localStorage.setItem(LISTINGS_STORAGE_KEY, JSON.stringify(safe))
-  return safe
+
+  try {
+    localStorage.setItem(LISTINGS_STORAGE_KEY, JSON.stringify(safe))
+    return safe
+  } catch (error) {
+    if (error?.name === 'QuotaExceededError' || error?.code === 22) {
+      return null
+    }
+    throw error
+  }
 }
 
 export function createListingId() {
