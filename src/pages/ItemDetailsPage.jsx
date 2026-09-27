@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Check, MapPin, Star } from 'lucide-react'
+import { ArrowLeft, Bookmark, Check, MapPin, Star } from 'lucide-react'
 import Navbar from '../components/layout/Navbar'
 import Footer from '../components/layout/Footer'
 import ImageGallery from '../components/item/ImageGallery'
@@ -18,6 +18,7 @@ import {
 } from '../data/listingUtils'
 import { formatPrice } from '../data/marketplaceUtils'
 import { resolveItemOwnerId } from '../data/rentalUtils'
+import { useSavedItems } from '../hooks/useSavedItems'
 
 export default function ItemDetailsPage() {
   const { id } = useParams()
@@ -25,6 +26,7 @@ export default function ItemDetailsPage() {
   const { user, isAuthenticated } = useAuth()
   const { listings, getListingById } = useListings()
   const { checkConflict } = useRentals()
+  const { isSaved, toggleSaved } = useSavedItems()
 
   const item = useMemo(
     () => findMarketplaceItem(id, listings, { viewerId: user?.id }),
@@ -72,6 +74,7 @@ export default function ItemDetailsPage() {
   const features = Array.isArray(item.features) ? item.features : []
   const ownerId = resolveItemOwnerId(item)
   const isOwnListing = Boolean(user && ownerId === user.id)
+  const saved = isSaved(item.id)
 
   function handleContinueToBooking() {
     setBookingHint('')
@@ -172,9 +175,23 @@ export default function ItemDetailsPage() {
                 <p className="text-sm font-semibold uppercase tracking-[0.12em] text-brand">
                   {item.category}
                 </p>
-                <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-                  {item.title}
-                </h1>
+                <div className="flex items-start gap-3">
+                  <h1 className="min-w-0 flex-1 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+                    {item.title}
+                  </h1>
+                  <button
+                    type="button"
+                    onClick={() => toggleSaved(item.id)}
+                    className="mt-1 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line bg-surface text-brand shadow-soft transition-colors hover:bg-brand-light"
+                    aria-label={saved ? `Remove ${item.title} from saved items` : `Save ${item.title} for later`}
+                    aria-pressed={saved}
+                  >
+                    <Bookmark
+                      className={`h-5 w-5 ${saved ? 'fill-brand' : ''}`}
+                      aria-hidden="true"
+                    />
+                  </button>
+                </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-soft">
                   <p className="inline-flex items-center gap-1">
