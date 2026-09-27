@@ -11,7 +11,10 @@ import EmptyState from '../components/ui/EmptyState'
 import { RequireRole } from '../components/auth/ProtectedRoute'
 import { useAuth } from '../hooks/useAuth'
 import { useRentals } from '../hooks/useRentals'
-import { getRecommendedItems, getSavedItems } from '../data/renterDashboard'
+import { getRecommendedItems } from '../data/renterDashboard'
+import { getMarketplaceCatalog } from '../data/listingUtils'
+import { useListings } from '../hooks/useListings'
+import { useSavedItems } from '../hooks/useSavedItems'
 import { getDisplayStatus } from '../data/rentalUtils'
 
 function greetingForNow() {
@@ -25,9 +28,12 @@ function RenterDashboardContent() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const { getRenterRentals } = useRentals()
+  const { listings } = useListings()
+  const { savedIds } = useSavedItems()
   const firstName = user.name.split(' ')[0]
+  const catalog = useMemo(() => getMarketplaceCatalog(listings), [listings])
   const recommended = useMemo(() => getRecommendedItems(), [])
-  const saved = useMemo(() => getSavedItems(), [])
+  const saved = useMemo(() => catalog.filter((item) => savedIds.includes(item.id)), [catalog, savedIds])
   const rentals = useMemo(() => getRenterRentals(user.id), [getRenterRentals, user.id])
 
   const stats = useMemo(() => {
@@ -136,11 +142,22 @@ function RenterDashboardContent() {
               Browse more →
             </Link>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {saved.map((item) => (
-              <ItemCard key={item.id} item={item} />
-            ))}
-          </div>
+          {saved.length === 0 ? (
+            <EmptyState
+              icon={Search}
+              title="No saved items yet"
+              description="Tap the bookmark on an item to save it for later."
+              actionLabel="Explore Items"
+              actionTo="/explore"
+              className="py-10 sm:py-12"
+            />
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {saved.map((item) => (
+                <ItemCard key={item.id} item={item} />
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="space-y-4">
