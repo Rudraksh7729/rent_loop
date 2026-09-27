@@ -163,7 +163,7 @@ function OwnerDashboardContent() {
 
         <section id="earnings" className="scroll-mt-28">
           <EarningsOverview
-            total={stats.demoEarnings || 0}
+            total={stats.earnings}
             breakdown={stats.breakdown}
           />
         </section>
